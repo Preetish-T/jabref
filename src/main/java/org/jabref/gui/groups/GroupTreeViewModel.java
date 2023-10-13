@@ -29,15 +29,7 @@ import org.jabref.gui.util.TaskExecutor;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-import org.jabref.model.groups.AbstractGroup;
-import org.jabref.model.groups.AutomaticKeywordGroup;
-import org.jabref.model.groups.AutomaticPersonsGroup;
-import org.jabref.model.groups.ExplicitGroup;
-import org.jabref.model.groups.GroupTreeNode;
-import org.jabref.model.groups.RegexKeywordGroup;
-import org.jabref.model.groups.SearchGroup;
-import org.jabref.model.groups.TexGroup;
-import org.jabref.model.groups.WordKeywordGroup;
+import org.jabref.model.groups.*;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.preferences.PreferencesService;
 
@@ -57,6 +49,19 @@ public class GroupTreeViewModel extends AbstractViewModel {
     private final Comparator<GroupTreeNode> compAlphabetIgnoreCase = (GroupTreeNode v1, GroupTreeNode v2) -> v1
             .getName()
             .compareToIgnoreCase(v2.getName());
+    private final Comparator<GroupTreeNode> compAlphabetIgnoreCaseReverse = (GroupTreeNode v1, GroupTreeNode v2) -> v2
+        .getName()
+        .compareToIgnoreCase(v1.getName());
+    private final Comparator<GroupTreeNode> compSubGroup = (GroupTreeNode v1, GroupTreeNode v2) -> {
+            int numChildren1 = v1.getNumberOfChildren();
+            int numChildren2 = v2.getNumberOfChildren();
+            return Integer.compare(numChildren2, numChildren1);
+        };
+    private final Comparator<GroupTreeNode> compSubGroupReverse = (GroupTreeNode v1, GroupTreeNode v2) -> {
+        int numChildren1 = v1.getNumberOfChildren();
+        int numChildren2 = v2.getNumberOfChildren();
+        return Integer.compare(numChildren1, numChildren2);
+    };
     private Optional<BibDatabaseContext> currentDatabase = Optional.empty();
 
     public GroupTreeViewModel(StateManager stateManager, DialogService dialogService, PreferencesService preferencesService, TaskExecutor taskExecutor, CustomLocalDragboard localDragboard) {
@@ -559,5 +564,14 @@ public class GroupTreeViewModel extends AbstractViewModel {
 
     public void sortAlphabeticallyRecursive(GroupTreeNode group) {
         group.sortChildren(compAlphabetIgnoreCase, true);
+    }
+    public void sortReverseAlphabeticallyRecursive(GroupTreeNode group) {
+        group.sortChildren(compAlphabetIgnoreCaseReverse, true);
+    }
+    public void sortSubgroupsRecursive(GroupTreeNode group) {
+        group.sortChildren(compSubGroup, true);
+    }
+    public void sortReverseSubgroupsRecursive(GroupTreeNode group) {
+        group.sortChildren(compSubGroupReverse, true);
     }
 }
